@@ -67,7 +67,7 @@ The filenames of your presets (minus '.json') are used as "keywords" in your pro
 - Try looking up your subject on [https://lexica.art/](lexica.art) for possibilities.
 - Supports randomization with the `|` delimiter, e.g. `Batman|Superman|Danny DeVito` will cause the script to pick from one of those three at random, every generation.
 
-#### img2txt_term (str)
+#### img2img_term (str)
 - This is direct prompt fragment for your subject, e.g. the filename of your finetuned embedding.
 - Supports randomization with the `|` delimter.
 
