@@ -124,6 +124,12 @@ The filenames of your presets (minus '.json') are used as "keywords" in your pro
 - This value indicates the density of a subject's presence within the txt2img result before the autotuner caps out on certain adjustments.
 - 0.5 means the subject occupies 50% of the image's pixels.
 
+#### daisychain (bool)
+- If enabled, the preset will pass its image (either txt2img or img2img generation) to a different preset file and perform another img2img operation using the settings of the new file.
+- The next preset is specified as the value of `txt2img_term`. Set it to a filename without an extension.
+- What this means is that you can create a custom "chain" of automated txt2img2img2img2img...2img operations. Why would you want to do this? Well, you might want to add a specific object to your body double that is hard to achieve in one pass. Maybe you want to give your body double a particular kind of hat - a standalone img2img operation for this may yield better results.
+- Be careful, you can create an infinite loop if you daisychain back and forth between the same files. There are no safety checks in place yet. Use your new superpowers responsibly.
+
 ## The Autotuner
 
 One of the unique features in txt2img2img is its ability to automatically adjust SD settings before the img2img step. It does this in a variety of ways:
@@ -140,7 +146,7 @@ One of the unique features in txt2img2img is its ability to automatically adjust
 
 ## Tips & Final Thots
 
-- If your subject likeness is poor, I highly recommend looking into "prompt weighting." This feature is not available in Automatic's UI by default, but it is relatively easy to implement yourself and the difference is night and day. Check [this post](https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/70#issuecomment-1237380147) for the code you'll need. It's a matter of splicing in a few blocks of code into `scripts/processing.py`. Afterwards, you can set your `img2img_term` to something like "mycharacter:10" - the higher the value, the better the likeness (at some cost to editability.) This feature is practically mandatory for my finetuned models.
+- If your subject likeness is poor, I highly recommend looking into "prompt weighting." Automatic's UI has a form of weighting with parentheses, but in my experience it doesn't help much with overtrained models - check [this post](https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/70#issuecomment-1237380147) for another implementation that makes a world of difference. It does require splicing in a few blocks of code into `scripts/processing.py`. Afterwards, you can set your `img2img_term` to something like "mycharacter:10" - the higher the value, the better the likeness (at a little cost to editability.) This feature is practically mandatory for my finetuned models.
 - Currently, the web UI's progress bar doesn't account for the img2img step. It'll say 100% at the halfway mark.
 - Batch processing should work fine.
 - img2img metadata is not available in the UI, but some info is printed to the console and all images should save to disk as usual.
