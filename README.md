@@ -62,12 +62,12 @@ The filenames of your presets (minus '.json') are used as "keywords" in your pro
 #### General notes:
 - You can modify your JSON options without having to restart the web app. Any changes will take effect the next time you generate an image.
 
-#### txt2txt_term (str)
+#### txt2img_term (str)
 - This is a "body double" that has strong editability for your subject. If you're making human characters, try entering an actor's name here. SD has a very good grasp on most people in Hollywood. Alternatively, you can try a short, generic phrase to approximate the look of your subject (e.g. "a blonde woman wearing a white turban") but in my experience this leads to less consistent results. 
 - Try looking up your subject on [https://lexica.art/](lexica.art) for possibilities.
 - Supports randomization with the `|` delimiter, e.g. `Batman|Superman|Danny DeVito` will cause the script to pick from one of those three at random, every generation.
 
-#### img2txt_term (str)
+#### img2img_term (str)
 - This is direct prompt fragment for your subject, e.g. the filename of your finetuned embedding.
 - Supports randomization with the `|` delimter.
 
@@ -133,14 +133,19 @@ One of the unique features in txt2img2img is its ability to automatically adjust
 - It will further adjust the denoising strength based on how many words and parentheses appear in the prompt after the keyword. More words = more concepts = a need for slightly lower denoise strength.
 - You can make it autotune harder by increasing the `overfit` value in your JSON file.
 
+## Known Issues
+
+- If the script crashes due to "img2img_color_correction" it likely means your web UI is not up to date. The color correction feature was added very recently.
+- If the script crashes due to a missing "u2net.onnx" file, you can download the file in question using the Google Drive link provided in the error screen. This file is a dependency of the Rembg module. You can also work around the issue by disabling `autoconfig` in your JSON file.
+
 ## Tips & Final Thots
 
-- If your subject likeness is poor, I highly recommend looking into "prompt weighting." This feature is not available in Automatic's UI by default, but it is relatively easy to implement yourself and the difference is night and day. Check [https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/70#issuecomment-1237380147](this post) for the code you'll need. It's a matter of splicing in a few blocks of code into `scripts/processing.py`. Afterwards, you can set your `img2img_term` to something like "mycharacter:10" - the higher the value, the better the likeness (at some cost to editability.) This feature is practically mandatory for my finetuned models.
+- If your subject likeness is poor, I highly recommend looking into "prompt weighting." This feature is not available in Automatic's UI by default, but it is relatively easy to implement yourself and the difference is night and day. Check [this post](https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/70#issuecomment-1237380147) for the code you'll need. It's a matter of splicing in a few blocks of code into `scripts/processing.py`. Afterwards, you can set your `img2img_term` to something like "mycharacter:10" - the higher the value, the better the likeness (at some cost to editability.) This feature is practically mandatory for my finetuned models.
 - Currently, the web UI's progress bar doesn't account for the img2img step. It'll say 100% at the halfway mark.
 - Batch processing should work fine.
 - img2img metadata is not available in the UI, but some info is printed to the console and all images should save to disk as usual.
-- Calling img2img from the txt2img page is a little hack-y and could break between updates of the web UI.
+- Calling img2img from the txt2img page is a little hack-y and could break between updates of the UI app. I'm looking for a way of futureproofing it.
 
-Feel free to [https://github.com/ThereforeGames/txt2img2img/issues](open an issue) if you have any questions or run into problems.
+Feel free to [open an issue](https://github.com/ThereforeGames/txt2img2img/issues) if you have any questions or run into problems.
 
 Enjoy!
