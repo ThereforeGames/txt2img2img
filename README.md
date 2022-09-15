@@ -146,7 +146,7 @@ One of the unique features in txt2img2img is its ability to automatically adjust
 
 ## Tips & Final Thots
 
-- If your subject likeness is poor, I highly recommend looking into "prompt weighting." Automatic's UI has a form of weighting with parentheses, but in my experience it doesn't help much with overtrained models - check [this post](https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/70#issuecomment-1237380147) for another implementation that makes a world of difference. It does require splicing in a few blocks of code into `scripts/processing.py`. Afterwards, you can set your `img2img_term` to something like "mycharacter:10" - the higher the value, the better the likeness (at a little cost to editability.) This feature is practically mandatory for my finetuned models.
+- If your subject likeness is poor, I highly recommend looking into "prompt weighting." Automatic's UI has a form of built-in weighting, but in my experience it doesn't help much with overtrained models - check [this post](https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/70#issuecomment-1237380147) for another implementation that makes a world of difference. It does require splicing in a few blocks of code into `scripts/processing.py`. Afterwards, you can set your `img2img_term` to something like "mycharacter:10" - the higher the value, the better the likeness (at a little cost to editability.) This feature is practically mandatory for my finetuned models.
 - Currently, the web UI's progress bar doesn't account for the img2img step. It'll say 100% at the halfway mark.
 - Batch processing should work fine.
 - img2img metadata is not available in the UI, but some info is printed to the console and all images should save to disk as usual.
