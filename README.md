@@ -126,8 +126,8 @@ The filenames of your presets (minus '.json') are used as "keywords" in your pro
 
 #### daisychain (bool)
 - If enabled, the preset will pass its image (either txt2img or img2img generation) to a different preset file and perform another img2img operation using the settings of the new file.
-- Specify the next file you're chaining to by setting the value of `txt2img_term` to its filename (minus '.json')
-- What this means is that you can create a custom "chain" of automated txt2img2img2img2img...2img operations. Why would you want to do this? Well, you might want to add a specific object to your body double that is hard to achieve in one pass. Maybe you want to give your body double a particular kind of hat - a standalone img2img operation for that may yield better results.
+- The next preset is specified as the value of `txt2img_term`. Set it to a filename without an extension.
+- What this means is that you can create a custom "chain" of automated txt2img2img2img2img...2img operations. Why would you want to do this? Well, you might want to add a specific object to your body double that is hard to achieve in one pass. Maybe you want to give your body double a particular kind of hat - a standalone img2img operation for this may yield better results.
 - Be careful, you can create an infinite loop if you daisychain back and forth between the same files. There are no safety checks in place yet. Use your new superpowers responsibly.
 
 ## The Autotuner
