@@ -133,6 +133,11 @@ One of the unique features in txt2img2img is its ability to automatically adjust
 - It will further adjust the denoising strength based on how many words and parentheses appear in the prompt after the keyword. More words = more concepts = a need for slightly lower denoise strength.
 - You can make it autotune harder by increasing the `overfit` value in your JSON file.
 
+## Known Issues
+
+- If the script crashes due to "img2img_color_correction" it likely means your web UI is not up to date. The color correction feature was added very recently.
+- If the script crashes due to a missing "u2net.onnx" file, you can download the file in question using the Google Drive link provided in the error screen. This file is a dependency of the Rembg module. You can also work around the issue by turning off "autoconfig" in your JSON file.
+
 ## Tips & Final Thots
 
 - If your subject likeness is poor, I highly recommend looking into "prompt weighting." This feature is not available in Automatic's UI by default, but it is relatively easy to implement yourself and the difference is night and day. Check [this post](https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/70#issuecomment-1237380147) for the code you'll need. It's a matter of splicing in a few blocks of code into `scripts/processing.py`. Afterwards, you can set your `img2img_term` to something like "mycharacter:10" - the higher the value, the better the likeness (at some cost to editability.) This feature is practically mandatory for my finetuned models.
