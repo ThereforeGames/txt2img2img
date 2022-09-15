@@ -135,12 +135,12 @@ One of the unique features in txt2img2img is its ability to automatically adjust
 
 ## Tips & Final Thots
 
-- If your subject likeness is poor, I highly recommend looking into "prompt weighting." This feature is not available in Automatic's UI by default, but it is relatively easy to implement yourself and the difference is night and day. Check [https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/70#issuecomment-1237380147](this post) for the code you'll need. It's a matter of splicing in a few blocks of code into `scripts/processing.py`. Afterwards, you can set your `img2img_term` to something like "mycharacter:10" - the higher the value, the better the likeness (at some cost to editability.) This feature is practically mandatory for my finetuned models.
+- If your subject likeness is poor, I highly recommend looking into "prompt weighting." This feature is not available in Automatic's UI by default, but it is relatively easy to implement yourself and the difference is night and day. Check [this post](https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/70#issuecomment-1237380147) for the code you'll need. It's a matter of splicing in a few blocks of code into `scripts/processing.py`. Afterwards, you can set your `img2img_term` to something like "mycharacter:10" - the higher the value, the better the likeness (at some cost to editability.) This feature is practically mandatory for my finetuned models.
 - Currently, the web UI's progress bar doesn't account for the img2img step. It'll say 100% at the halfway mark.
 - Batch processing should work fine.
 - img2img metadata is not available in the UI, but some info is printed to the console and all images should save to disk as usual.
 - Calling img2img from the txt2img page is a little hack-y and could break between updates of the UI app. I'm looking for a way of futureproofing it.
 
-Feel free to [https://github.com/ThereforeGames/txt2img2img/issues](open an issue) if you have any questions or run into problems.
+Feel free to [open an issue](https://github.com/ThereforeGames/txt2img2img/issues) if you have any questions or run into problems.
 
 Enjoy!
