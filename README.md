@@ -139,7 +139,7 @@ One of the unique features in txt2img2img is its ability to automatically adjust
 - Currently, the web UI's progress bar doesn't account for the img2img step. It'll say 100% at the halfway mark.
 - Batch processing should work fine.
 - img2img metadata is not available in the UI, but some info is printed to the console and all images should save to disk as usual.
-- Calling img2img from the txt2img page is a little hack-y and could break between updates of the web UI.
+- Calling img2img from the txt2img page is a little hack-y and could break between updates of the UI app. I'm looking for a way of futureproofing it.
 
 Feel free to [https://github.com/ThereforeGames/txt2img2img/issues](open an issue) if you have any questions or run into problems.
 
