@@ -211,7 +211,8 @@ class Script(scripts.Script):
 					img2img_result = modules.img2img.img2img(
 						p.prompt,
 						p.negative_prompt,
-						getattr(p,"prompt_style",""),
+						getattr(p,"prompt_style","None"),
+						getattr(p,"prompt_style2","None"),
 						p.init_images,
 						None, # p.init_img_with_mask
 						None, # p.init_mask
@@ -222,14 +223,16 @@ class Script(scripts.Script):
 						0, # p.inpainting_fill
 						p.restore_faces,
 						p.tiling,
-						'Redraw whole image', #p.switch_mode
+						0, #p.switch_mode
 						1,#p.batch_count
 						1,#p.batch_size
 						p.cfg_scale,
 						p.denoising_strength,
-						0, # p.denoising_strength_change_factor
 						p.seed,
-						p.subseed, p.subseed_strength, p.seed_resize_from_h, p.seed_resize_from_w,
+						p.subseed,
+						p.subseed_strength,
+						p.seed_resize_from_h,
+						p.seed_resize_from_w,
 						p.height,
 						p.width,
 						0, # p.resize_mode
