@@ -1,0 +1,3 @@
+[console_scripts]
+rembg = rembg.cli:main
+
