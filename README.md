@@ -136,7 +136,7 @@ One of the unique features in txt2img2img is its ability to automatically adjust
 ## Known Issues
 
 - If the script crashes due to "img2img_color_correction" it likely means your web UI is not up to date. The color correction feature was added very recently.
-- If the script crashes due to a missing "u2net.onnx" file, you can download the file in question using the Google Drive link provided in the error screen. This file is a dependency of the Rembg module. You can also work around the issue by turning off "autoconfig" in your JSON file.
+- If the script crashes due to a missing "u2net.onnx" file, you can download the file in question using the Google Drive link provided in the error screen. This file is a dependency of the Rembg module. You can also work around the issue by disabling `autoconfig` in your JSON file.
 
 ## Tips & Final Thots
 
