@@ -62,7 +62,7 @@ The filenames of your presets (minus '.json') are used as "keywords" in your pro
 #### General notes:
 - You can modify your JSON options without having to restart the web app. Any changes will take effect the next time you generate an image.
 
-#### txt2txt_term (str)
+#### txt2img_term (str)
 - This is a "body double" that has strong editability for your subject. If you're making human characters, try entering an actor's name here. SD has a very good grasp on most people in Hollywood. Alternatively, you can try a short, generic phrase to approximate the look of your subject (e.g. "a blonde woman wearing a white turban") but in my experience this leads to less consistent results. 
 - Try looking up your subject on [https://lexica.art/](lexica.art) for possibilities.
 - Supports randomization with the `|` delimiter, e.g. `Batman|Superman|Danny DeVito` will cause the script to pick from one of those three at random, every generation.
