@@ -51,11 +51,11 @@ From the txt2img screen, select txt2img2img as your active script:
 
 ![image](https://user-images.githubusercontent.com/95403634/190369520-41ca3584-87fd-42cc-8439-588b3a998a23.png)
 
-Now, you will need to set up preset(s) for your subjects. Each preset is created as a JSON file inside the `/txt2img2img` directory of the web app.
+Now, you will need to set up routines for your subjects. Each routine is created as a JSON file inside the `/txt2img2img/routines` directory of the web app.
 
-Check the included files of that directory to get a better understanding of how they work - it is mostly self-explanatory, but please see the next section for detailed instructions.
+Check the included `example.json` in that directory to get a better understanding of how a routine is defined - it is mostly self-explanatory, but please see the next section for detailed instructions.
 
-The filenames of your presets (minus '.json') are used as "keywords" in your prompt for txt2img2img processing.
+The filenames of your routines (minus '.json') are used as "keywords" in your prompt for txt2img2img processing.
 
 ## JSON Options
 
@@ -106,13 +106,23 @@ The filenames of your presets (minus '.json') are used as "keywords" in your pro
 - If enabled, the script will ignore the global color correction setting of the web app.
 - In my experience, the color correction can lead to pictures that look a bit washed out. I'm not sure if this is an issue with the color correction, or just the way it interacts with my finetuned objects.
 
-#### prompt_method (int 0-4)
-- This determines how your prompt is sliced up for img2img processing. When in doubt, leave it at 0.
-- **0:** The keyword (i.e. the JSON filename) will be replaced with your `img2txt_term` value. No further processing. This is generally the best option.
-- **1:** Delete any words in the prompt that come before the keyword.
-- **2:** Delete any words in the prompt that come after the keyword.
-- **3:** Replace the keyword with a generic dummy term (defined by `filler_term` in the JSON) and append your `img2txt_term` value to the end of the prompt.
-- **4:** Replace the entire prompt with `img2txt_term`.
+#### prompt_template (str)
+- This refers to a txt file (minus '.txt') in the `./txt2img2img/prompt_templates` directory which contains a formatting string to use with img2img.
+- `default.txt` generally yields the best likeness, while `prompt2prompt_inversion.txt` may offer slightly improved editability and background detail.
+- Feel free to try out the other templates or write your own!
+- Project templates support the following variables:
+  - **$intro**: The beginning portion of the prompt up to your routine name
+  - **$outro**: The ending portion of your prompt after your routine name
+  - **$old_term**: The body double name, i.e. txt2img_term
+  - **$new_term**: The "real" subject name, i.e. img2img_term
+  - **$prompt**: The full prompt string
+  - **$denoising_strength**: The value of your denoising strength after any adjustments from the autotuner
+  - **$cfg_scale**: The value of your CFG scale after any adjustments from the autotuner
+  - **$complexity**: A value that represents the complexity of your prompt as determined by its number of tokens
+- Project templates support the following shortcodes:
+  - **\<eval\>**: Perform the enclosed content as arithmetic operation, e.g. `<eval>2 + 2</eval>` returns 4
+  - **\<choose\>**: Selects an option at random from the enclosed content, delimited by `|`
+  - **\<file\>**: Returns the contents of the specified file within your `./txt2img2img` directory
 
 #### overfit (int 1-10)
 - Defaults to 5.
@@ -143,12 +153,7 @@ One of the unique features in txt2img2img is its ability to automatically adjust
 
 - If the script crashes due to "img2img_color_correction" it likely means your web UI is not up to date. The color correction feature was added very recently.
 - If the script crashes due to a missing "u2net.onnx" file, you can download the file in question using the Google Drive link provided in the error screen. This file is a dependency of the Rembg module. You can also work around the issue by disabling `autoconfig` in your JSON file.
-
-## Tips & Final Thots
-
-- If your subject likeness is poor, I highly recommend looking into "prompt weighting." Automatic's UI has a form of built-in weighting, but in my experience it doesn't help much with overtrained models - check [this post](https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/70#issuecomment-1237380147) for another implementation that makes a world of difference. It does require splicing in a few blocks of code into `scripts/processing.py`. Afterwards, you can set your `img2img_term` to something like "mycharacter:10" - the higher the value, the better the likeness (at a little cost to editability.) This feature is practically mandatory for my finetuned models.
 - Currently, the web UI's progress bar doesn't account for the img2img step. It'll say 100% at the halfway mark.
-- Batch processing should work fine.
 - img2img metadata is not available in the UI, but some info is printed to the console and all images should save to disk as usual.
 - Calling img2img from the txt2img page is a little hack-y and could break between updates of the UI app. I'm looking for a way of futureproofing it.
 
