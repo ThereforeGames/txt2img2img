@@ -8,15 +8,48 @@ import modules.scripts as scripts
 import gradio as gr
 import math
 
-from modules import images
+from modules import images, shared
 from modules.processing import process_images, Processed
 from modules.shared import opts, cmd_opts, state, Options
 import modules.sd_samplers
 import modules.img2img
 import random
 
+import torch
+from ldm.modules.encoders.modules import FrozenCLIPEmbedder
+
+from txt2img2img.dependencies import shortcodes
+
+base_dir = "./txt2img2img"
+routines_dir = f"{base_dir}/routines"
+prompt_templates_dir = f"{base_dir}/prompt_templates"
+
+@shortcodes.register("choose", "/choose")
+def handler(pargs, kwargs, context, content):
+	parts = content.split('|')
+	return random.choice(parts)
+
+@shortcodes.register("eval", "/eval")
+def handler(pargs, kwargs, context, content):
+	return str(eval(content))
+
+@shortcodes.register("file", "/file")
+def handler(pargs, kwargs, context, content):
+	with open(base_dir + "/" + content + ".txt", "r") as file:
+		file_contents = file.read().replace('\n', ' ')
+	return(shortcode_parser.parse(file_contents, context=None))
+
+shortcode_parser = shortcodes.Parser(start="<", end=">", esc="\\\\")
+
 def sigmoid(x):
   return 1 / (1 + math.exp(-x))
+
+def get_clip_token_for_string(test, string):
+	batch_encoding = test.tokenizer(string, truncation=True, max_length=77, return_length=True,
+		return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
+	tokens = batch_encoding["input_ids"]
+	count = torch.count_nonzero(tokens - 49407)
+	return count.item()
 
 def choose_string(my_string,delimiter = "|"):
 	my_string = my_string.split(delimiter)
@@ -24,7 +57,7 @@ def choose_string(my_string,delimiter = "|"):
 
 class Script(scripts.Script):
 	def title(self):
-		return "txt2img2img v0.0.2"
+		return "txt2img2img v1.0.0"
 
 	def show(self, is_img2img):
 		return not is_img2img
@@ -32,10 +65,30 @@ class Script(scripts.Script):
 	def ui(self, is_img2img):
 		if is_img2img:
 			return None
-		
+
 		return []
 
 	def run(self, p):
+		def get_prompt_complexity(prompt): return get_clip_token_for_string(FrozenCLIPEmbedder().cuda(),prompt)
+
+		def process_prompt_template(template_file):
+			this_file = f"{prompt_templates_dir}/{template_file}.txt"
+			try:
+				with open(this_file, 'r') as file:
+					template = file.read().replace('\n', '')
+			except:
+				template = template_file
+
+			template = template.replace("$intro"," ".join(prompt_parts[0:img2img_term_index]))
+			template = template.replace("$outro"," ".join(prompt_parts[img2img_term_index+1:len(prompt_parts)]))
+			template = template.replace("$old_term",getattr(img_opts,'txt2img_term','subject'))
+			template = template.replace("$new_term",getattr(img_opts,'img2img_term','subject'))
+			template = template.replace("$prompt",p.prompt)
+			template = template.replace("$denoising_strength",str(p.denoising_strength))
+			template = template.replace("$cfg_scale",str(p.cfg_scale))
+			template = template.replace("$complexity",str(get_prompt_complexity(p.prompt)))
+			
+			return(shortcode_parser.parse(template))
 
 		img2img_term_index = -1
 
@@ -50,52 +103,29 @@ class Script(scripts.Script):
 		original_prompt = p.prompt[0] if type(p.prompt) == list else p.prompt
 		prompt_parts = original_prompt.split(" ")
 
-		# Create an array of replacement terms based on filenames in the presets directory
-		preset_dir = "./txt2img2img"
-		preset_files = os.listdir(preset_dir)
-		presets = [x.split(".")[0] for x in preset_files]
+		routine_files = os.listdir(routines_dir)
+		routines = [x.split(".")[0] for x in routine_files]
 
-		print(f"Found the following preset files: {presets}")
+		print(f"Found the following preset files: {routines}")
 
 		for i, this_part in enumerate(prompt_parts):
 			sanitized_part = this_part.translate(str.maketrans('', '', string.punctuation))
 
-			if sanitized_part in presets:
+			if sanitized_part in routines:
 				img2img_term_index = i
 				
 				# Load settings for this part
-				img_opts.load(f"{preset_dir}/{sanitized_part}.json")
+				img_opts.load(f"{routines_dir}/{sanitized_part}.json")
 				prompt_method = getattr(img_opts,"prompt_method",0)
 
 				# Enable support for randomized prompt paramters
 				img_opts.txt2img_term = choose_string(img_opts.txt2img_term)
 				img_opts.img2img_term = choose_string(img_opts.img2img_term)
 
-				# Method 0: Replace the placeholder term with user-specified value, leaving the rest of the prompt intact
-				if prompt_method == 0:
-					prompt_parts[i] = prompt_parts[i].replace(sanitized_part,img_opts.img2img_term)
-					img_opts.img2img_prompt = " ".join(prompt_parts)
-					prompt_parts[i] = prompt_parts[i].replace(img_opts.img2img_term, img_opts.txt2img_term)
-				# Method 1: Replace the placeholder term and delete anything that comes before
-				elif prompt_method == 1:
-					prompt_parts[i] = prompt_parts[i].replace(sanitized_part,img_opts.img2img_term)
-					img_opts.img2img_prompt = " ".join(prompt_parts[i:len(prompt_parts)-1])
-				# Method 2: Replace the placeholder term and delete anything that comes after
-				elif prompt_method == 2:
-					prompt_parts[i] = prompt_parts[i].replace(sanitized_part,img_opts.img2img_term)
-					img_opts.img2img_prompt = " ".join(prompt_parts[0:i+1])
-					prompt_parts[i] = prompt_parts[i].replace(img_opts.img2img_term, img_opts.txt2img_term)
-				# Method 3: Switch the txt2img term with a dummy term and append the img2img term to the end
-				elif prompt_method == 3:
-					filler_term = choose_string(getattr(img_opts,"filler_term","subject"))
-					prompt_parts[i] = prompt_parts[i].replace(sanitized_part,filler_term)
-					img_opts.img2img_prompt = " ".join(prompt_parts) + f", {img_opts.img2img_term}"
-					prompt_parts[i] = prompt_parts[i].replace(filler_term, img_opts.txt2img_term)
-				# Method 4: Replace the entire prompt with the user-specified value
-				else:
-					img_opts.img2img_prompt = img_opts.img2img_term
-					prompt_parts[i] = prompt_parts[i].replace(sanitized_part,img_opts.txt2img_term)
-
+				# Term replacement
+				prompt_parts[i] = prompt_parts[i].replace(sanitized_part,img_opts.img2img_term)
+				img_opts.img2img_prompt = " ".join(prompt_parts)
+				prompt_parts[i] = prompt_parts[i].replace(img_opts.img2img_term, img_opts.txt2img_term)
 
 				# TODO: Add support for use of multiple presets within a prompt. For now, let's just kill the loop
 				break
@@ -129,7 +159,7 @@ class Script(scripts.Script):
 					print(f"Loading daisychain config for further processing: {img_opts.img2img_term}.json")
 					next_file = img_opts.img2img_term
 					img_opts = modules.shared.Options()	 # TODO: Make sure this isn't leaking memory
-					img_opts.load(f"{preset_dir}/{next_file}.json")
+					img_opts.load(f"{routines_dir}/{next_file}.json")
 
 					# TODO: Remove duplicate code below
 					prompt_parts[img2img_term_index] = getattr(img_opts,"txt2img_term","subject")
@@ -164,7 +194,7 @@ class Script(scripts.Script):
 					min_denoising_strength = 0.36
 
 					total_pixels = p.width * p.height
-				
+							
 				p.prompt = img_opts.img2img_prompt
 				for i in range(processed_amt):
 					this_idx = chain_offset_idx + i - batch_offset_idx
@@ -191,13 +221,15 @@ class Script(scripts.Script):
 						p.cfg_scale = max(min_cfg_scale,(p.cfg_scale * 2) * sigmoid(1 - (max_subject_size / subject_size) * (overfit / 5)))
 						
 						# Lower the denoising strength a bit based on how many more words come after our object
-						p.denoising_strength = denoising_original - 0.01 * (len(prompt_parts) - (img2img_term_index + 1)) - 0.02 * " ".join(prompt_parts[0:img2img_term_index+1]).count(')')
+						p.denoising_strength = denoising_original - 0.01 * (get_prompt_complexity(p.prompt) - (img2img_term_index + 1)) - 0.02 * " ".join(prompt_parts[0:img2img_term_index+1]).count(')')
 						
 						# Apply another fancy distribution curve
 						p.denoising_strength = max(min_denoising_strength,(p.denoising_strength * 2) * sigmoid(1 - (max_subject_size / subject_size) * (overfit/5)))
 
 						print(f"Updated CFG scale to {p.cfg_scale} and denoising strength to {p.denoising_strength}")
 
+					p.prompt = process_prompt_template(getattr(img_opts,"prompt_template","default"))
+					
 					p.init_images = processed.images[this_idx]
 					p.sampler_index = samplers_dict.get(getattr(img_opts,"sampler_name","euler a").lower(), p.sampler_index)
 					p.restore_faces = getattr(img_opts,"restore_faces",p.restore_faces)
