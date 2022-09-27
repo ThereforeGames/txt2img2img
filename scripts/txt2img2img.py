@@ -57,7 +57,7 @@ def choose_string(my_string,delimiter = "|"):
 
 class Script(scripts.Script):
 	def title(self):
-		return "txt2img2img v1.0.0"
+		return "txt2img2img v1.0.1"
 
 	def show(self, is_img2img):
 		return not is_img2img
@@ -227,7 +227,8 @@ class Script(scripts.Script):
 						p.denoising_strength = max(min_denoising_strength,(p.denoising_strength * 2) * sigmoid(1 - (max_subject_size / subject_size) * (overfit/5)))
 
 						print(f"Updated CFG scale to {p.cfg_scale} and denoising strength to {p.denoising_strength}")
-
+					
+					p.mode = 0
 					p.prompt = process_prompt_template(getattr(img_opts,"prompt_template","default"))
 					
 					p.init_images = processed.images[this_idx]
@@ -238,16 +239,18 @@ class Script(scripts.Script):
 					p.negative_prompt = getattr(img_opts,"negative_prompt",p.negative_prompt)
 
 					if p.seed == -1: p.seed = int(random.randrange(4294967294))
-
+                    
 					# This feels a bit hacky, but it seems to work for now
 					img2img_result = modules.img2img.img2img(
+						p.mode,
 						p.prompt,
 						p.negative_prompt,
 						getattr(p,"prompt_style","None"),
 						getattr(p,"prompt_style2","None"),
 						p.init_images,
 						None, # p.init_img_with_mask
-						None, # p.init_mask
+						None, # p.init_img_inpaint
+						None, # p.init_mask_inpaint
 						p.mask_mode,
 						p.steps,
 						p.sampler_index,
@@ -255,9 +258,8 @@ class Script(scripts.Script):
 						0, # p.inpainting_fill
 						p.restore_faces,
 						p.tiling,
-						0, #p.switch_mode
-						1,#p.batch_count
-						1,#p.batch_size
+						1, #p.n_iter
+						1, #p.batch_size
 						p.cfg_scale,
 						p.denoising_strength,
 						p.seed,
@@ -265,13 +267,15 @@ class Script(scripts.Script):
 						p.subseed_strength,
 						p.seed_resize_from_h,
 						p.seed_resize_from_w,
+						False, # p.seed_enable_extras
 						p.height,
 						p.width,
 						0, # p.resize_mode
-						'Irrelevant', # p.sd_upscale_upscaler_name
-						0, # p.sd_upscale_overlap
 						True, # p.inpaint_full_res
+						0, #p.inpaint_full_res_padding,
 						False, # p.inpainting_mask_invert
+						None, # p.img2img_batch_input_dir
+						None, # p.img2img_batch_output_dir
 						0, # this is the *args tuple and I believe 0 indicates we are not using an extra script in img2img
 					)
 
