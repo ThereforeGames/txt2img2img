@@ -12,7 +12,8 @@ In addition to the ability to define your own keywords and presets, txt2img2img 
 
 We can approximate the "best" settings for img2img (denoise, CFG scale, inference steps) by considering how big or small the subject is within an image. This saves you the time and hassle of having to flip through pages in the UI and fiddle with sliders manually.
 
-This is a work in progress - more docs and features will be added over time.
+Detailed instructions are available below, but if you want to get this up and running as quickly as possible, visit the Starter Guide page:
+- https://github.com/ThereforeGames/txt2img2img/blob/main/STARTER%20GUIDE.md
 
 ## Purpose
 

@@ -42,7 +42,7 @@ My custom embedding of sheik is called sheik_v1.pt so I set the value accordingl
 
 `img2img_term="sheik_v1"`
 
-### 3) Run the script
+## 3) Run the script
 
 You can leave all the other JSON options at their default values.
 
