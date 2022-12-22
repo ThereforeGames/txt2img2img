@@ -1,3 +1,7 @@
+> **Warning**
+>
+> This script has been superseded by my new extension, [Unprompted](https://github.com/ThereforeGames/unprompted), which has the ability to run tasks after the initial txt2img process, including img2img. I do not plan on updating the original script and I cannot guarantee that it will continue working in new versions of the A1111 WebUI. Thank you for understanding.
+
 # txt2img2img for Stable Diffusion
 Greatly improve the editability of any character/subject while retaining their likeness.
 
